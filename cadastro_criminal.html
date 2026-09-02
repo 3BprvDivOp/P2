@@ -674,17 +674,22 @@ function renderList(records) {
       ? `<img src="${r.FOTO_URL}" alt="">`
       : `<span class="sb-avatar-icon">👤</span>`;
     const isActive = currentRecord && currentRecord.ID === r.ID ? ' active' : '';
+    const _nome = String(r.NOME||'(sem nome)');
+    const _rg   = String(r.RG||'');
+    const _cia  = String(r.CIA||'');
+    const _data = String(r.DATA_ABORDAGEM||'');
+    const _del  = String(r.DELITO||'');
     return `
       <div class="sb-item${isActive}" onclick="showPerfil('${r.ID}')">
         <div class="sb-avatar">${avatar}</div>
         <div class="sb-info">
-          <div class="sb-name">${r.NOME || '(sem nome)'}</div>
+          <div class="sb-name">${_nome}</div>
           <div class="sb-meta">
-            <span>${r.RG || ''}</span>
-            ${r.CIA ? `<span>${r.CIA}</span>` : ''}
-            ${r.DATA_ABORDAGEM ? `<span>${r.DATA_ABORDAGEM}</span>` : ''}
+            <span>${_rg}</span>
+            ${_cia ? `<span>${_cia}</span>` : ''}
+            ${_data ? `<span>${_data}</span>` : ''}
           </div>
-          ${r.DELITO ? `<div><span class="sb-delito">${r.DELITO.slice(0, 30)}</span></div>` : ''}
+          ${_del ? `<div><span class="sb-delito">${_del.slice(0,30)}</span></div>` : ''}
         </div>
       </div>`;
   }).join('');
