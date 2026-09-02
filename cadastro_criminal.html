@@ -596,22 +596,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── API ───────────────────────────────────────────────────────
 async function apiGet(params) {
-  const url = new URL(API_URL);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const resp = await fetch(url.toString());
-  return resp.json();
+  const qs = Object.entries(params).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+  const url = API_URL + (API_URL.includes('?') ? '&' : '?') + qs;
+  try {
+    const resp = await fetch(url, { redirect: 'follow' });
+    const text = await resp.text();
+    try { return JSON.parse(text); }
+    catch(e) { return { error: 'Resposta inválida da API (GET)' }; }
+  } catch(err) {
+    return { error: 'Falha de conexão: ' + err.message };
+  }
 }
 
 async function apiPost(body) {
-  const resp = await fetch(API_URL, {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    redirect: 'follow'
-  });
-  const text = await resp.text();
-  try { return JSON.parse(text); }
-  catch(e) { return { error: 'Resposta inválida: ' + text.slice(0, 100) }; }
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      redirect: 'follow'
+    });
+    const text = await resp.text();
+    try { return JSON.parse(text); }
+    catch(e) { return { error: 'Resposta inválida da API (POST)' }; }
+  } catch(err) {
+    return { error: 'Falha de conexão: ' + err.message };
+  }
 }
 
 // ── CARREGAR REGISTROS ────────────────────────────────────────
@@ -624,7 +634,7 @@ async function loadRecords() {
     applyFilters();
   } catch(e) {
     document.getElementById('sb-list').innerHTML =
-      '<div class="sb-empty">⚠ Erro ao carregar.<br>Verifique a URL da API.</div>';
+      '<div class="sb-empty">⚠ Erro ao carregar.<br><small style="font-size:10px;color:#666">' + (e.message||e) + '</small></div>';
   }
 }
 
