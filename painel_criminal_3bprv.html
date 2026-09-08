@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>3BPRv · Inteligência Criminal 2025–2026</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--card:#21262d;--border:#30363d;
+  --text:#e6edf3;--muted:#8b949e;--gold:#f0a830;
+  --red:#f85149;--orange:#ff8c00;--yellow:#d29922;--green:#3fb950;--blue:#388bfd;
+  --purple:#a78bfa;--teal:#56d364;
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+
+/* HEADER */
+.dash-header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.dash-brand{font-weight:900;font-size:15px;color:var(--gold);letter-spacing:1px}
+.dash-period{color:var(--muted);font-size:12px;margin-top:2px}
+.dash-badges{display:flex;gap:8px;align-items:center}
+.dash-badge{font-size:10px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:4px 10px;border-radius:6px;letter-spacing:.5px}
+.badge-red{border-color:rgba(248,81,73,.4);color:var(--red)}
+.badge-gold{border-color:rgba(240,168,48,.4);color:var(--gold)}
+
+/* KPI BAR */
+.kpi-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
+.kpi{background:var(--card);border-radius:10px;padding:11px 14px;border-left:3px solid transparent}
+.kpi.k-red{border-left-color:var(--red)}.kpi.k-orange{border-left-color:var(--orange)}
+.kpi.k-yellow{border-left-color:var(--yellow)}.kpi.k-blue{border-left-color:var(--blue)}
+.kpi.k-purple{border-left-color:var(--purple)}.kpi.k-green{border-left-color:var(--green)}
+.kpi.k-teal{border-left-color:var(--teal)}.kpi.k-gold{border-left-color:var(--gold)}
+.kpi-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.kpi-val{font-size:22px;font-weight:900}
+.k-red .kpi-val{color:var(--red)}.k-orange .kpi-val{color:var(--orange)}
+.k-yellow .kpi-val{color:var(--yellow)}.k-blue .kpi-val{color:var(--blue)}
+.k-purple .kpi-val{color:var(--purple)}.k-green .kpi-val{color:var(--green)}
+.k-teal .kpi-val{color:var(--teal)}.k-gold .kpi-val{color:var(--gold)}
+.kpi-sub{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{padding:11px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover:not(.active){color:var(--text)}
+.tc{display:none;padding:20px 24px}.tc.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--border);margin-bottom:14px}
+.card:last-child{margin-bottom:0}
+.ct{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.cs{font-size:15px;font-weight:700;margin-bottom:14px}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g13{display:grid;grid-template-columns:1fr 3fr;gap:14px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+
+/* CHART WRAPPERS */
+.cw{position:relative;height:230px}
+.cwl{position:relative;height:280px}
+.cwxl{position:relative;height:340px}
+.cwheat{position:relative;height:180px}
+
+/* RANK LIST */
+.rank-list{display:flex;flex-direction:column;gap:8px}
+.ri{display:flex;align-items:center;gap:8px}
+.rn{color:var(--muted);font-size:11px;width:20px;text-align:right;flex-shrink:0}
+.rnm{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbw{flex:1;height:5px;background:var(--border);border-radius:3px}
+.rb{height:100%;border-radius:3px}
+.rc{font-size:13px;font-weight:700;width:44px;text-align:right;flex-shrink:0}
+
+/* BADGES */
+.bx{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.bx-red{background:rgba(248,81,73,.15);color:var(--red)}
+.bx-orange{background:rgba(255,140,0,.15);color:var(--orange)}
+.bx-yellow{background:rgba(210,153,34,.15);color:var(--yellow)}
+.bx-blue{background:rgba(56,139,253,.15);color:var(--blue)}
+.bx-gold{background:rgba(240,168,48,.15);color:var(--gold)}
+.bx-purple{background:rgba(167,139,250,.15);color:var(--purple)}
+.bx-green{background:rgba(63,185,80,.15);color:var(--green)}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface);padding:9px 11px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:var(--surface)}
+
+/* INSIGHT CARDS */
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:14px}
+.insight{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:10px;padding:14px}
+.insight.i-orange{border-left-color:var(--orange)}
+.insight.i-yellow{border-left-color:var(--yellow)}
+.insight.i-green{border-left-color:var(--green)}
+.insight.i-blue{border-left-color:var(--blue)}
+.insight.i-purple{border-left-color:var(--purple)}
+.insight.i-gold{border-left-color:var(--gold)}
+.insight-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.insight-val{font-size:22px;font-weight:900;margin-bottom:4px}
+.insight-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* HEATMAP */
+.heatmap-wrap{overflow-x:auto}
+.heatmap-table{border-collapse:separate;border-spacing:2px;font-size:9px}
+.hm-cell{width:28px;height:28px;border-radius:3px;text-align:center;vertical-align:middle;font-size:9px;font-weight:600;cursor:default;transition:opacity .15s}
+.hm-cell:hover{opacity:.8}
+.hm-label-r{font-size:10px;color:var(--muted);padding-right:8px;white-space:nowrap;font-weight:500}
+.hm-label-c{font-size:9px;color:var(--muted);text-align:center;padding-bottom:4px}
+
+/* COMPARATIVO */
+.comp-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.comp-card{background:var(--surface);border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center}
+.comp-ano{font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.comp-val{font-size:28px;font-weight:900}
+.comp-sub{font-size:11px;margin-top:3px}
+.trend-up{color:var(--red)}.trend-down{color:var(--green)}.trend-eq{color:var(--muted)}
+.trend-up-good{color:var(--green)}.trend-down-bad{color:var(--red)}
+
+/* CIA CARDS */
+.cia-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.cia-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;border-top:3px solid}
+.cia-name{font-size:13px;font-weight:800;margin-bottom:10px}
+.cia-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)}
+.cia-row:last-child{border:none}
+.cia-k{color:var(--muted)}.cia-v{font-weight:600}
+
+/* ALERT BOX */
+.alert-box{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#c9d1d9}
+.alert-box strong{color:var(--red)}
+.info-box{background:rgba(56,139,253,.08);border:1px solid rgba(56,139,253,.3);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#c9d1d9}
+.info-box strong{color:var(--blue)}
+
+@media(max-width:900px){
+  .kpi-bar{grid-template-columns:repeat(4,1fr)}
+  .g2,.g3,.g4,.g21,.g13,.cia-grid,.comp-row{grid-template-columns:1fr}
+  .insight-grid{grid-template-columns:1fr}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="dash-header">
+  <div>
+    <div class="dash-brand">3º BPRv · INTELIGÊNCIA CRIMINAL</div>
+    <div class="dash-period">Relatório Estratégico · BOPM 2025–2026 · 1.947 ocorrências criminais</div>
+  </div>
+  <div class="dash-badges">
+    <span class="dash-badge badge-red">739 presos</span>
+    <span class="dash-badge badge-gold">7.237 kg maconha</span>
+    <span class="dash-badge badge-red">1.400 kg cocaína</span>
+    <span class="dash-badge">3º BPRv · PMESP</span>
+  </div>
+</header>
+
+<!-- KPI BAR -->
+<div class="kpi-bar">
+  <div class="kpi k-blue"><div class="kpi-label">Ocorrências criminais</div><div class="kpi-val">1.947</div><div class="kpi-sub">2025+2026</div></div>
+  <div class="kpi k-red"><div class="kpi-label">Presos flagrante</div><div class="kpi-val">739</div><div class="kpi-sub">+14 menores</div></div>
+  <div class="kpi k-orange"><div class="kpi-label">Tráfico entorpecentes</div><div class="kpi-val">278</div><div class="kpi-sub">14,3% das ocorrências</div></div>
+  <div class="kpi k-yellow"><div class="kpi-label">Maconha apreendida</div><div class="kpi-val">7.237</div><div class="kpi-sub">kg · 2025+2026</div></div>
+  <div class="kpi k-purple"><div class="kpi-label">Cocaína apreendida</div><div class="kpi-val">1.400</div><div class="kpi-sub">kg · 2025+2026</div></div>
+  <div class="kpi k-red"><div class="kpi-label">Armas apreendidas</div><div class="kpi-val">81</div><div class="kpi-sub">23 restritas · 58 permitidas</div></div>
+  <div class="kpi k-teal"><div class="kpi-label">Contrabando/Descaminho</div><div class="kpi-val">147</div><div class="kpi-sub">ocorrências</div></div>
+  <div class="kpi k-gold"><div class="kpi-label">Receptação</div><div class="kpi-val">85</div><div class="kpi-sub">ocorrências</div></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('geral',this)">Visão Geral</div>
+  <div class="tab" onclick="showTab('trafico',this)">Tráfico / Drogas</div>
+  <div class="tab" onclick="showTab('roubo',this)">Roubo / Furto</div>
+  <div class="tab" onclick="showTab('armas',this)">Armas</div>
+  <div class="tab" onclick="showTab('contrabando',this)">Contrabando</div>
+  <div class="tab" onclick="showTab('temporal',this)">Hora / Dia</div>
+  <div class="tab" onclick="showTab('malha',this)">Malha Viária</div>
+  <div class="tab" onclick="showTab('cia',this)">Por CIA</div>
+  <div class="tab" onclick="showTab('inteligencia',this)">⭐ Inteligência</div>
+</div>
+
+<!-- ═══════════════════ GERAL ═══════════════════ -->
+<div class="tc active" id="tab-geral">
+
+  <div class="alert-box">
+    <strong>Destaque estratégico:</strong> A malha <strong>000/310 (Washington Luís)</strong> concentra <strong>545 ocorrências criminais</strong> — 28% do total do batalhão. Tráfico de entorpecentes tem pico entre <strong>18h–22h</strong> e municípios de <strong>São José do Rio Preto, Araraquara e Boa Esperança do Sul</strong> lideram em volume. Contrabando cresceu <strong>286%</strong> de 2025 para 2026 (jan–ago).
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="ct">Naturezas criminais</div>
+      <div class="cs">Top 12 — 2025 + 2026</div>
+      <div class="cw"><canvas id="c-nat-bar"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Ocorrências por CIA</div>
+      <div class="cs">Distribuição 2025 + 2026</div>
+      <div class="cw"><canvas id="c-cia-donut"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Ocorrências por malha viária</div>
+      <div class="cs">Top 10 malhas</div>
+      <div class="cw"><canvas id="c-malha-bar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Evolução mensal — total criminal</div>
+      <div class="cs">2025 vs 2026</div>
+      <div class="cw"><canvas id="c-mes-total"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Municípios — top 10 ocorrências criminais</div>
+      <div class="cs">2025 + 2026 somados</div>
+      <div class="cwl"><canvas id="c-mun-bar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Comparativo 2025 vs 2026 (jan–ago)</div>
+      <div class="cs">Principais indicadores</div>
+      <div class="comp-row">
+        <div class="comp-card">
+          <div class="comp-ano">2025 (ano completo)</div>
+          <div class="comp-val" style="color:var(--blue)">747</div>
+          <div class="comp-sub trend-eq">ocorrências criminais</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-ano">2026 (jan–ago)</div>
+          <div class="comp-val" style="color:var(--red)">814</div>
+          <div class="comp-sub trend-up">▲ crescimento</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-ano">Projeção 2026</div>
+          <div class="comp-val" style="color:var(--yellow)">~1.221</div>
+          <div class="comp-sub trend-up">▲ 63% vs 2025</div>
+        </div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-card">
+          <div class="comp-ano">Presos 2025</div>
+          <div class="comp-val" style="color:var(--green)">299</div>
+          <div class="comp-sub">flagrante adultos</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-ano">Presos 2026</div>
+          <div class="comp-val" style="color:var(--green)">315</div>
+          <div class="comp-sub trend-up-good">▲ 5,4%</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-ano">Maconha 2025</div>
+          <div class="comp-val" style="color:var(--yellow)">4.810</div>
+          <div class="comp-sub">kg apreendidos</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Ocorrências por sentido de tráfego</div>
+      <div class="cs">Distribuição geral</div>
+      <div class="cw"><canvas id="c-sentido"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ TRÁFICO ═══════════════════ -->
+<div class="tc" id="tab-trafico">
+
+  <div class="insight-grid">
+    <div class="insight">
+      <div class="insight-label">Total tráfico + porte</div>
+      <div class="insight-val" style="color:var(--orange)">310</div>
+      <div class="insight-desc">278 tráfico + 32 porte de entorpecente</div>
+    </div>
+    <div class="insight i-yellow">
+      <div class="insight-label">Maconha total apreendida</div>
+      <div class="insight-val" style="color:var(--yellow)">7.237 kg</div>
+      <div class="insight-desc">2025: 4.810 kg · 2026 (jan–ago): 2.219 kg</div>
+    </div>
+    <div class="insight i-purple">
+      <div class="insight-label">Cocaína total apreendida</div>
+      <div class="insight-val" style="color:var(--purple)">1.400 kg</div>
+      <div class="insight-desc">100% registrada em 2026 — zero em 2025</div>
+    </div>
+    <div class="insight i-orange">
+      <div class="insight-label">Crack apreendido</div>
+      <div class="insight-val" style="color:var(--orange)">379 kg</div>
+      <div class="insight-desc">2025 + 2026</div>
+    </div>
+    <div class="insight i-red">
+      <div class="insight-label" style="color:var(--red)">Malha crítica — tráfico</div>
+      <div class="insight-val" style="color:var(--red)">000/310</div>
+      <div class="insight-desc">107 ocorrências de tráfico — Washington Luís</div>
+    </div>
+    <div class="insight i-blue">
+      <div class="insight-label">Hora de pico — tráfico</div>
+      <div class="insight-val" style="color:var(--blue)">18h–22h</div>
+      <div class="insight-desc">Maior concentração no período noturno</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Evolução mensal — tráfico de entorpecentes</div>
+      <div class="cs">2025 vs 2026</div>
+      <div class="cw"><canvas id="c-traf-mes"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Tráfico por hora do dia</div>
+      <div class="cs">Distribuição 24h</div>
+      <div class="cw"><canvas id="c-traf-hora"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Maconha apreendida por mês (kg)</div>
+      <div class="cs">Série mensal 2025 + 2026</div>
+      <div class="cwl"><canvas id="c-maconha-mes"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Cocaína apreendida por mês (kg)</div>
+      <div class="cs">Série mensal 2026 — novo padrão</div>
+      <div class="cwl"><canvas id="c-cocaina-mes"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Municípios — tráfico de entorpecentes</div>
+      <div class="cs">Top 10</div>
+      <div class="rank-list" id="rank-traf-mun"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Malhas viárias — tráfico</div>
+      <div class="cs">Top 10</div>
+      <div class="rank-list" id="rank-traf-malha"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ ROUBO / FURTO ═══════════════════ -->
+<div class="tc" id="tab-roubo">
+
+  <div class="insight-grid">
+    <div class="insight">
+      <div class="insight-label">Total roubos registrados</div>
+      <div class="insight-val" style="color:var(--red)">48</div>
+      <div class="insight-desc">Inclui tentativas — pico noturno 19h–22h</div>
+    </div>
+    <div class="insight i-orange">
+      <div class="insight-label">Total furtos registrados</div>
+      <div class="insight-val" style="color:var(--orange)">61</div>
+      <div class="insight-desc">Pulverizado ao longo do dia</div>
+    </div>
+    <div class="insight i-purple">
+      <div class="insight-label">Ocorrências com veículo</div>
+      <div class="insight-val" style="color:var(--purple)">258</div>
+      <div class="insight-desc">Recuperação, adulteração, localização</div>
+    </div>
+    <div class="insight i-yellow">
+      <div class="insight-label">Receptação</div>
+      <div class="insight-val" style="color:var(--yellow)">85</div>
+      <div class="insight-desc">000/310 com 21 casos — maior concentração</div>
+    </div>
+    <div class="insight i-red">
+      <div class="insight-label">Malha crítica — roubos</div>
+      <div class="insight-val" style="color:var(--red)">000/330</div>
+      <div class="insight-desc">7 roubos — Via Anhanguera · maior por malha</div>
+    </div>
+    <div class="insight i-blue">
+      <div class="insight-label">Município crítico — roubos</div>
+      <div class="insight-val" style="color:var(--blue)">Franca</div>
+      <div class="insight-desc">5 roubos — maior por município</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Roubo — distribuição por hora</div>
+      <div class="cs">Padrão de incidência — pico noturno</div>
+      <div class="cw"><canvas id="c-roubo-hora"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Furto — distribuição por hora</div>
+      <div class="cs">Padrão de incidência</div>
+      <div class="cw"><canvas id="c-furto-hora"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Roubos por malha viária</div>
+      <div class="cs">Top 10</div>
+      <div class="rank-list" id="rank-roubo-malha"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Furtos por malha viária</div>
+      <div class="cs">Top 10</div>
+      <div class="rank-list" id="rank-furto-malha"></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Receptação por malha viária</div>
+      <div class="cs">Top 10 — 000/310 lidera com 21 casos</div>
+      <div class="rank-list" id="rank-rec-malha"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Ocorrências com veículo — hora</div>
+      <div class="cs">Recuperação · adulteração · localização</div>
+      <div class="cw"><canvas id="c-veic-hora"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ ARMAS ═══════════════════ -->
+<div class="tc" id="tab-armas">
+
+  <div class="insight-grid">
+    <div class="insight i-red">
+      <div class="insight-label">Total armas apreendidas</div>
+      <div class="insight-val" style="color:var(--red)">81</div>
+      <div class="insight-desc">23 de uso restrito + 58 de uso permitido</div>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Arma mais apreendida (restrita)</div>
+      <div class="insight-val" style="color:var(--red)">Pistola</div>
+      <div class="insight-desc">15 pistolas de uso restrito apreendidas</div>
+    </div>
+    <div class="insight i-orange">
+      <div class="insight-label">Arma mais apreendida (permitida)</div>
+      <div class="insight-val" style="color:var(--orange)">Revólver</div>
+      <div class="insight-desc">19 revólveres de uso permitido apreendidos</div>
+    </div>
+    <div class="insight i-yellow">
+      <div class="insight-label">Ocorrências — arma de fogo</div>
+      <div class="insight-val" style="color:var(--yellow)">59</div>
+      <div class="insight-desc">Natureza "Arma de Fogo" — 2025+2026</div>
+    </div>
+    <div class="insight i-blue">
+      <div class="insight-label">Município crítico — armas</div>
+      <div class="insight-val" style="color:var(--blue)">SJRP</div>
+      <div class="insight-desc">São José do Rio Preto — 6 ocorrências</div>
+    </div>
+    <div class="insight i-purple">
+      <div class="insight-label">Metralhadora apreendida</div>
+      <div class="insight-val" style="color:var(--purple)">1</div>
+      <div class="insight-desc">Arma de uso restrito — alto risco</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Armas apreendidas por tipo</div>
+      <div class="cs">Restritas vs Permitidas</div>
+      <div class="cwl"><canvas id="c-armas-tipo"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Ocorrências com arma de fogo — hora</div>
+      <div class="cs">Distribuição 24h</div>
+      <div class="cw"><canvas id="c-arma-hora"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Municípios — ocorrências com arma de fogo</div>
+      <div class="cs">Top 10</div>
+      <div class="rank-list" id="rank-arma-mun"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Tipologia de armas — comparativo</div>
+      <div class="cs">Restritas (vermelho) vs Permitidas (dourado)</div>
+      <div class="cw"><canvas id="c-armas-comp"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ CONTRABANDO ═══════════════════ -->
+<div class="tc" id="tab-contrabando">
+
+  <div class="info-box">
+    <strong>Tendência crítica:</strong> Contrabando/Descaminho saltou de <strong>33 ocorrências em 2025</strong> para <strong>100 ocorrências em 2026 (jan–ago)</strong> — crescimento de <strong>203%</strong>. <strong>São José do Rio Preto</strong> concentra 38 casos (26% do total). A malha <strong>000/310</strong> lidera com 64 ocorrências. Padrão de pico entre <strong>10h–11h</strong> — operações diurnas.
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight i-orange">
+      <div class="insight-label">Total contrabando/descaminho</div>
+      <div class="insight-val" style="color:var(--orange)">147</div>
+      <div class="insight-desc">2025: 33 · 2026 (jan–ago): 100 · projeção anual: ~150</div>
+    </div>
+    <div class="insight i-red">
+      <div class="insight-label">Crescimento 2025→2026</div>
+      <div class="insight-val" style="color:var(--red)">+203%</div>
+      <div class="insight-desc">Tendência de alta acelerada em 2026</div>
+    </div>
+    <div class="insight i-blue">
+      <div class="insight-label">Malha crítica</div>
+      <div class="insight-val" style="color:var(--blue)">000/310</div>
+      <div class="insight-desc">64 ocorrências — Washington Luís</div>
+    </div>
+    <div class="insight i-yellow">
+      <div class="insight-label">Município crítico</div>
+      <div class="insight-val" style="color:var(--yellow)">SJRP</div>
+      <div class="insight-desc">São José do Rio Preto — 38 casos (26%)</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Evolução mensal — contrabando/descaminho</div>
+      <div class="cs">2025 vs 2026 — crescimento acelerado</div>
+      <div class="cw"><canvas id="c-cont-mes"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Contrabando por hora do dia</div>
+      <div class="cs">Pico entre 10h–11h — operações diurnas</div>
+      <div class="cw"><canvas id="c-cont-hora"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Municípios — contrabando/descaminho</div>
+      <div class="cs">Top 10</div>
+      <div class="rank-list" id="rank-cont-mun"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Malhas viárias — contrabando</div>
+      <div class="cs">Top 10</div>
+      <div class="rank-list" id="rank-cont-malha"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ HORA / DIA ═══════════════════ -->
+<div class="tc" id="tab-temporal">
+
+  <div class="info-box">
+    <strong>Padrão temporal:</strong> Pico de ocorrências entre <strong>09h–11h</strong> (138 casos às 10h) e <strong>18h–22h</strong> (média de 107 casos). <strong>Sábado</strong> é o dia mais crítico (247 casos), seguido de <strong>domingo</strong> (237). Tráfico tem maior incidência às <strong>18h</strong> (28 casos naquele horário). Contrabando concentra-se no período diurno.
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Ocorrências criminais por hora</div>
+      <div class="cs">Distribuição 24h — 2025 + 2026</div>
+      <div class="cw"><canvas id="c-hora-geral"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Ocorrências criminais por dia da semana</div>
+      <div class="cs">Fim de semana lidera</div>
+      <div class="cw"><canvas id="c-dia-semana"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Heatmap — hora × dia da semana</div>
+    <div class="cs">Intensidade de ocorrências criminais · células mais escuras = maior concentração</div>
+    <div class="heatmap-wrap"><div id="heatmap-container"></div></div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="ct">Tráfico — hora do dia</div>
+      <div class="cs">18h–22h período crítico</div>
+      <div class="cw"><canvas id="c-hora-traf"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Contrabando — hora do dia</div>
+      <div class="cs">10h–11h período crítico</div>
+      <div class="cw"><canvas id="c-hora-cont2"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Roubo — hora do dia</div>
+      <div class="cs">19h–22h período crítico</div>
+      <div class="cw"><canvas id="c-hora-roubo2"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ MALHA VIÁRIA ═══════════════════ -->
+<div class="tc" id="tab-malha">
+
+  <div class="alert-box">
+    <strong>Atenção — Malha 000/310 (Washington Luís):</strong> 545 ocorrências criminais — 28% de todo o batalhão. Lidera em tráfico (107), contrabando (64), receptação (21) e ocorrências com veículo (51). É a malha mais crítica e deve receber atenção especial no planejamento operacional.
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Ocorrências criminais por malha viária</div>
+      <div class="cs">Total 2025 + 2026</div>
+      <div class="cwl"><canvas id="c-malha-total"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Composição por malha — naturezas</div>
+      <div class="cs">Tráfico vs Contrabando vs Roubo vs Veículo</div>
+      <div class="cwl"><canvas id="c-malha-comp"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Tabela detalhada — malhas × naturezas</div>
+    <div class="cs">Top 10 malhas com composição por tipo</div>
+    <div class="tw"><table id="tbl-malha"></table></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ POR CIA ═══════════════════ -->
+<div class="tc" id="tab-cia">
+
+  <div class="cia-grid" id="cia-cards"></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Ocorrências criminais por CIA</div>
+      <div class="cs">3ª e 4ª CIA lideram — 595 cada</div>
+      <div class="cw"><canvas id="c-cia-bar"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Por pelotão — distribuição</div>
+      <div class="cs">TOR concentra 627 ocorrências criminais</div>
+      <div class="cw"><canvas id="c-pelotao"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ INTELIGÊNCIA ═══════════════════ -->
+<div class="tc" id="tab-inteligencia">
+
+  <div class="info-box">
+    <strong>Visão Estratégica — Respostas às perguntas do Comando:</strong> Esta aba consolida as análises que respondem objetivamente ao documento estratégico da Agência, subsidiando o planejamento operacional de cada subunidade.
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight i-red">
+      <div class="insight-label">Onde ocorrem as principais apreensões?</div>
+      <div class="insight-val" style="color:var(--red);font-size:16px">000/310 · SJRP · Araraquara</div>
+      <div class="insight-desc">Malha Washington Luís (28% do total) e municípios de São José do Rio Preto, Araraquara e Ribeirão Preto são os pontos críticos para tráfico e contrabando.</div>
+    </div>
+    <div class="insight i-orange">
+      <div class="insight-label">Horários e dias de maior incidência?</div>
+      <div class="insight-val" style="color:var(--orange);font-size:16px">10h, 18h–22h · Sáb/Dom</div>
+      <div class="insight-desc">Dois picos diários: manhã (10h–11h, contrabando) e noite (18h–22h, tráfico e roubo). Fim de semana concentra 35% das ocorrências criminais.</div>
+    </div>
+    <div class="insight i-yellow">
+      <div class="insight-label">Quais rotas com maior concentração?</div>
+      <div class="insight-val" style="color:var(--yellow);font-size:16px">000/310 · 000/330 · 000/334</div>
+      <div class="insight-desc">Washington Luís (545), Via Anhanguera (167) e Cândido Portinari (163) são as três rotas mais críticas para o crime organizado.</div>
+    </div>
+    <div class="insight i-purple">
+      <div class="insight-label">Quais tipos de drogas são mais frequentes?</div>
+      <div class="insight-val" style="color:var(--purple);font-size:16px">Maconha 7.237 kg</div>
+      <div class="insight-desc">Maconha predominante (7.237 kg). Cocaína emergiu em 2026 com 1.400 kg — novo padrão. Crack com 379 kg. Diversificação sugere rotas múltiplas.</div>
+    </div>
+    <div class="insight i-blue">
+      <div class="insight-label">Relação tráfico × contrabando × roubo?</div>
+      <div class="insight-val" style="color:var(--blue);font-size:16px">000/310 ← nó central</div>
+      <div class="insight-desc">A malha 000/310 concentra simultaneamente tráfico (107), contrabando (64) e receptação (21), indicando possível uso por organizações criminosas diversificadas.</div>
+    </div>
+    <div class="insight i-gold">
+      <div class="insight-label">Municípios de passagem/concentração?</div>
+      <div class="insight-val" style="color:var(--gold);font-size:16px">SJRP · Ribeirão · Araraquara</div>
+      <div class="insight-desc">Triângulo SJRP–Ribeirão Preto–Araraquara funciona como hub criminal na área do batalhão, com múltiplas naturezas concentradas nestes três municípios.</div>
+    </div>
+    <div class="insight i-orange">
+      <div class="insight-label">Crescimento mais preocupante?</div>
+      <div class="insight-val" style="color:var(--orange);font-size:16px">Contrabando +203%</div>
+      <div class="insight-desc">Contrabando/Descaminho cresceu 203% em 2026 vs 2025. Surge simultaneamente cocaína em volume expressivo. Estes dois indicadores merecem investigação prioritária.</div>
+    </div>
+    <div class="insight i-red">
+      <div class="insight-label">TOR como vetor operacional?</div>
+      <div class="insight-val" style="color:var(--red);font-size:16px">627 ocorrências</div>
+      <div class="insight-desc">O TOR registra 627 ocorrências criminais — mais que qualquer pelotão individual. Concentração tática neste efetivo é determinante para os resultados do batalhão.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Prioridades operacionais — matriz de risco</div>
+    <div class="cs">Naturezas × impacto × tendência</div>
+    <div class="tw">
+      <table id="tbl-intel"></table>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Evolução acumulada — indicadores estratégicos</div>
+      <div class="cs">Tráfico + Contrabando + Roubo + Armas (mensal)</div>
+      <div class="cwl"><canvas id="c-intel-trend"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Concentração geográfica — top 10 municípios</div>
+      <div class="cs">Volume total de ocorrências criminais</div>
+      <div class="cwl"><canvas id="c-intel-mun"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.color='#8b949e';
+Chart.defaults.font.family='Segoe UI, system-ui, sans-serif';
+Chart.defaults.font.size=11;
+
+const G={
+  bg:'#0d1117',surface:'#161b22',card:'#21262d',border:'#30363d',
+  gold:'#f0a830',red:'#f85149',orange:'#ff8c00',yellow:'#d29922',
+  green:'#3fb950',blue:'#388bfd',purple:'#a78bfa',teal:'#56d364'
+};
+const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const DIAS=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const HORAS=Array.from({length:24},(_,i)=>i+'h');
+
+const D={
+  naturezas:{"INFRAÇÕES E CRIMES DE TRÂNSITO":299,"VEÍCULO":258,"OCORRÊNCIAS COM ENTORPECENTES (TRÁFICO)":246,"OCORRÊNCIA COM PRESO":204,"CONTRABANDO/DESCAMINHO":147,"RECEPTAÇÃO":85,"OCORRÊNCIA COM PESSOA":74,"ARMA DE FOGO":59,"FURTO":57,"ROUBO":48,"USO DE ENTORPECENTE (PORTE)":32,"ESTELIONATO/FRAUDE":28},
+  malhas:{"000/310":545,"000/330":167,"000/334":163,"000/320":119,"000/322":108,"000/255":85,"000/333":76,"000/326":69,"000/425":59,"000/304":59,"000/308":32,"000/127":31,"000/351":23,"000/345":23,"000/101":22},
+  por_cia:{"1ª CIA":480,"2ª CIA":277,"3ª CIA":595,"4ª CIA":595},
+  por_pelotao:{"TOR":627,"1 Pelotão":588,"2 Pelotão":384,"3 Pelotão":339,"ADM":7,"4 Pelotão":2},
+  municipios:{"São José Do Rio Preto":178,"Ribeirão Preto":153,"Araraquara":127,"Franca":109,"Rio Claro":78,"Piracicaba":71,"Barretos":52,"Sertãozinho":50,"São Carlos":49,"Jales":43,"Catiguá":42,"Mirassol":39},
+  sentido:{"Decrescente":988,"Crescente":959},
+  por_hora:[96,64,46,30,26,18,54,79,91,112,138,89,60,58,93,113,73,84,109,115,99,109,99,92],
+  por_dia:[227,205,214,198,233,247,237],
+  por_mes_25:[113,134,128,19,25,16,21,113,29,14,117,18],
+  por_mes_26:[93,108,109,107,104,82,89,97,25,0,0,0],
+  heatmap:[[13,8,3,3,2,1,6,12,9,10,16,7,6,9,7,10,8,13,17,13,13,16,16,9],[5,5,5,1,1,2,7,8,10,13,20,11,5,5,10,10,12,7,12,18,12,8,12,6],[9,4,5,8,5,3,1,9,7,19,15,14,7,11,14,10,5,7,16,5,7,9,8,16],[11,5,6,2,1,1,7,8,9,14,13,9,4,4,10,19,3,5,9,17,7,14,9,11],[7,11,2,8,2,2,13,8,11,7,20,11,11,7,9,13,4,13,11,9,13,18,15,8],[14,12,8,3,5,5,1,12,7,13,13,9,13,7,11,8,10,13,11,17,14,14,14,13],[14,11,6,2,5,1,6,5,16,10,17,10,2,7,19,20,11,10,8,11,14,12,9,11]],
+  // Tráfico
+  trafico_mes_25:[24,24,21,3,3,2,5,13,5,2,16,3],
+  trafico_mes_26:[10,18,13,12,6,10,15,18,6,0,0,0],
+  trafico_hora:[11,6,3,1,1,0,5,5,9,19,23,11,4,8,8,17,10,11,28,23,15,23,23,14],
+  trafico_mun:{"São José Do Rio Preto":34,"Araraquara":26,"Boa Esperança Do Sul":19,"Sertãozinho":14,"Catiguá":13,"Ribeirão Preto":11,"Rio Claro":10,"São Simão":6,"Mirassol":6,"Itirapina":6},
+  trafico_malha:{"000/310":107,"000/255":31,"000/322":25,"000/330":20,"000/333":12,"000/320":12,"000/334":12,"000/425":9,"000/304":9,"000/326":7},
+  maconha_mes_25:[215,577,0,1,0,0,0,50,262,0,3705,0],
+  maconha_mes_26:[0,0,10,40,0,0,804.78,1333.31,31.21,0,0,0],
+  cocaina_mes_26:[0,325,0,0,0,0,169,457.01,2.2,0,0,0],
+  // Roubo/Furto
+  roubo_hora:[5,4,1,1,1,1,1,3,1,2,0,1,0,0,1,1,0,1,1,5,6,5,4,3],
+  furto_hora:[2,1,4,1,4,1,1,4,3,1,5,4,1,3,3,6,1,3,3,0,2,4,2,2],
+  roubo_malha:{"000/330":7,"000/351":6,"000/310":5,"000/191":3,"000/345":3,"000/101":2,"000/308":2,"000/333":2,"000/320":2,"000/334":2},
+  furto_malha:{"000/310":16,"000/330":9,"000/334":6,"000/320":5,"000/326":3,"000/304":2,"000/253":2,"000/322":2,"000/255":2,"000/127":2},
+  rec_malha:{"000/310":21,"000/330":9,"000/322":8,"000/255":7,"000/334":7,"000/333":6,"000/425":4,"000/345":3,"000/326":2,"000/351":1},
+  veiculo_hora:[17,8,9,9,2,3,7,11,18,21,10,15,5,5,17,10,5,8,9,16,9,16,19,9],
+  // Armas
+  armas_tipo:{"Revolver(P)":19,"Pistola(P)":16,"Pistola":15,"Espingarda(P)":10,"Brinquedo(P)":5,"Faca(P)":5,"Espingarda":4,"BrancaOutras(P)":2,"Brinquedo":1,"Metralhadora":1,"Revolver":1,"Rifle":1,"Rifle(P)":1},
+  arma_hora:[2,1,1,1,2,0,0,0,2,4,3,0,3,0,3,4,5,5,5,4,2,5,2,5],
+  arma_mun:{"São José Do Rio Preto":6,"Catiguá":4,"Barretos":4,"Ribeirão Preto":3,"Rio Claro":2,"Araraquara":2,"Restinga":2,"São Pedro":2,"Jaboticabal":2,"Santa Adélia":2},
+  // Contrabando
+  cont_mes_25:[3,4,4,0,0,0,0,8,1,1,10,2],
+  cont_mes_26:[6,14,14,14,20,9,9,13,1,0,0,0],
+  cont_hora:[2,1,4,6,3,3,7,13,6,11,18,18,10,4,9,4,3,5,3,2,4,3,4,4],
+  cont_mun:{"São José Do Rio Preto":38,"Jales":8,"Piracicaba":8,"Mirassol":7,"Borborema":5,"Barretos":5,"Auriflama":5,"Olímpia":4,"Sertãozinho":3,"São Carlos":3},
+  cont_malha:{"000/310":64,"000/320":12,"000/304":11,"000/333":10,"000/425":9,"000/255":6,"000/326":3,"000/595":3,"000/461":3,"000/322":3}
+};
+
+const charts={};
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+const DL_OFF={plugins:{datalabels:{display:false}}};
+const DL_ON={display:true,color:'#e6edf3',font:{size:9,weight:'bold'},anchor:'end',align:'top',offset:-2,formatter:v=>v>0?v:''};
+const DL_H={display:true,color:'#e6edf3',font:{size:10,weight:'bold'},anchor:'end',align:'right',offset:4,formatter:v=>v>0?v:''};
+
+function baseOpts(dl){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:dl||DL_ON},scales:{x:{grid:{display:false},ticks:{color:'#8b949e',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'},beginAtZero:true}}};}
+function barH(color){return{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},datalabels:DL_H},scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},y:{grid:{display:false},ticks:{color:'#e6edf3',font:{size:10}}}}};}
+
+/* ── RANK LIST ── */
+function rankList(elId, data, color){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  const entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);
+  const max=entries[0][1];
+  el.innerHTML=entries.map(([k,v],i)=>`
+    <div class="ri">
+      <div class="rn">${i+1}</div>
+      <div class="rnm" title="${k}">${k}</div>
+      <div class="rbw"><div class="rb" style="width:${Math.round(v/max*100)}%;background:${color}"></div></div>
+      <div class="rc" style="color:${color}">${v.toLocaleString('pt-BR')}</div>
+    </div>`).join('');
+}
+
+/* ── TAB SWITCH ── */
+function showTab(id,el){
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+  const init={geral:initGeral,trafico:initTrafico,roubo:initRoubo,armas:initArmas,contrabando:initContrabando,temporal:initTemporal,malha:initMalha,cia:initCia,inteligencia:initInteligencia};
+  if(init[id]) init[id]();
+}
+
+/* ════ GERAL ════ */
+function initGeral(){
+  dc('c-nat-bar');
+  const nats=Object.entries(D.naturezas).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  charts['c-nat-bar']=new Chart(document.getElementById('c-nat-bar'),{type:'bar',
+    data:{labels:nats.map(x=>x[0].length>22?x[0].slice(0,22)+'…':x[0]),datasets:[{data:nats.map(x=>x[1]),backgroundColor:nats.map((x,i)=>i===0?G.blue+'cc':G.gold+'88'),borderRadius:4}]},
+    options:{...baseOpts(DL_ON),indexAxis:'y',scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},y:{grid:{display:false},ticks:{color:'#e6edf3',font:{size:10}}}}}});
+
+  dc('c-cia-donut');
+  charts['c-cia-donut']=new Chart(document.getElementById('c-cia-donut'),{type:'doughnut',
+    data:{labels:Object.keys(D.por_cia),datasets:[{data:Object.values(D.por_cia),backgroundColor:[G.gold,G.green,G.blue,G.red],borderWidth:3,borderColor:G.card}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:'#8b949e',font:{size:10}}},datalabels:{display:true,color:'#fff',font:{size:11,weight:'bold'},formatter:(v,ctx)=>ctx.chart.data.labels[ctx.dataIndex]+'\n'+v}}}});
+
+  dc('c-malha-bar');
+  const malhas=Object.entries(D.malhas).slice(0,10);
+  charts['c-malha-bar']=new Chart(document.getElementById('c-malha-bar'),{type:'bar',
+    data:{labels:malhas.map(x=>x[0]),datasets:[{data:malhas.map(x=>x[1]),backgroundColor:malhas.map((x,i)=>i===0?G.red+'cc':G.gold+'66'),borderRadius:4}]},
+    options:{...baseOpts(DL_ON),indexAxis:'y',scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},y:{grid:{display:false},ticks:{color:'#e6edf3',font:{size:10}}}}}});
+
+  dc('c-mes-total');
+  charts['c-mes-total']=new Chart(document.getElementById('c-mes-total'),{type:'bar',
+    data:{labels:MESES,datasets:[
+      {label:'2025',data:D.por_mes_25,backgroundColor:G.gold+'88',borderRadius:4},
+      {label:'2026',data:D.por_mes_26,backgroundColor:G.blue+'88',borderRadius:4}]},
+    options:{...baseOpts({display:false}),plugins:{legend:{display:true,labels:{color:'#8b949e',font:{size:10}}},datalabels:{display:false}}}});
+
+  dc('c-mun-bar');
+  const muns=Object.entries(D.municipios).slice(0,10);
+  charts['c-mun-bar']=new Chart(document.getElementById('c-mun-bar'),{type:'bar',
+    data:{labels:muns.map(x=>x[0].replace('São José Do Rio Preto','SJRP').replace('Ribeirão Preto','Ribeirão Pto')),datasets:[{data:muns.map(x=>x[1]),backgroundColor:G.gold+'88',borderRadius:4}]},
+    options:{...baseOpts(DL_ON),indexAxis:'y',scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},y:{grid:{display:false},ticks:{color:'#e6edf3',font:{size:10}}}}}});
+
+  dc('c-sentido');
+  charts['c-sentido']=new Chart(document.getElementById('c-sentido'),{type:'doughnut',
+    data:{labels:['Decrescente','Crescente'],datasets:[{data:[988,959],backgroundColor:[G.blue,G.gold],borderWidth:3,borderColor:G.card}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{display:true,position:'bottom',labels:{color:'#8b949e'}},datalabels:{display:true,color:'#fff',font:{size:11,weight:'bold'},formatter:(v,ctx)=>ctx.chart.data.labels[ctx.dataIndex]+'\n'+v}}}});
+}
+
+/* ════ TRÁFICO ════ */
+function initTrafico(){
+  dc('c-traf-mes');
+  charts['c-traf-mes']=new Chart(document.getElementById('c-traf-mes'),{type:'bar',
+    data:{labels:MESES,datasets:[
+      {label:'2025',data:D.trafico_mes_25,backgroundColor:G.orange+'88',borderRadius:4},
+      {label:'2026',data:D.trafico_mes_26,backgroundColor:G.red+'88',borderRadius:4}]},
+    options:{...baseOpts({display:false}),plugins:{legend:{display:true,labels:{color:'#8b949e',font:{size:10}}},datalabels:{display:false}}}});
+
+  dc('c-traf-hora');
+  charts['c-traf-hora']=new Chart(document.getElementById('c-traf-hora'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.trafico_hora,backgroundColor:D.trafico_hora.map(v=>v>=20?G.red+'dd':G.orange+'88'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  dc('c-maconha-mes');
+  charts['c-maconha-mes']=new Chart(document.getElementById('c-maconha-mes'),{type:'bar',
+    data:{labels:MESES,datasets:[
+      {label:'2025',data:D.maconha_mes_25,backgroundColor:G.yellow+'88',borderRadius:4},
+      {label:'2026',data:D.maconha_mes_26,backgroundColor:G.green+'88',borderRadius:4}]},
+    options:{...baseOpts({display:false}),plugins:{legend:{display:true,labels:{color:'#8b949e'}},datalabels:{display:false}}}});
+
+  dc('c-cocaina-mes');
+  charts['c-cocaina-mes']=new Chart(document.getElementById('c-cocaina-mes'),{type:'bar',
+    data:{labels:MESES,datasets:[{label:'2026',data:D.cocaina_mes_26,backgroundColor:G.purple+'88',borderRadius:4}]},
+    options:{...baseOpts({display:false}),plugins:{legend:{display:true,labels:{color:'#8b949e'}},datalabels:{display:false}}}});
+
+  rankList('rank-traf-mun',D.trafico_mun,G.orange);
+  rankList('rank-traf-malha',D.trafico_malha,G.gold);
+}
+
+/* ════ ROUBO ════ */
+function initRoubo(){
+  dc('c-roubo-hora');
+  charts['c-roubo-hora']=new Chart(document.getElementById('c-roubo-hora'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.roubo_hora,backgroundColor:D.roubo_hora.map(v=>v>=5?G.red+'dd':G.red+'66'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  dc('c-furto-hora');
+  charts['c-furto-hora']=new Chart(document.getElementById('c-furto-hora'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.furto_hora,backgroundColor:G.orange+'88',borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  rankList('rank-roubo-malha',D.roubo_malha,G.red);
+  rankList('rank-furto-malha',D.furto_malha,G.orange);
+  rankList('rank-rec-malha',D.rec_malha,G.yellow);
+
+  dc('c-veic-hora');
+  charts['c-veic-hora']=new Chart(document.getElementById('c-veic-hora'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.veiculo_hora,backgroundColor:G.purple+'88',borderRadius:3}]},
+    options:baseOpts({display:false})});
+}
+
+/* ════ ARMAS ════ */
+function initArmas(){
+  dc('c-armas-tipo');
+  const armas=Object.entries(D.armas_tipo).sort((a,b)=>b[1]-a[1]);
+  charts['c-armas-tipo']=new Chart(document.getElementById('c-armas-tipo'),{type:'bar',
+    data:{labels:armas.map(x=>x[0]),datasets:[{data:armas.map(x=>x[1]),backgroundColor:armas.map(x=>x[0].includes('(P)')?G.gold+'aa':G.red+'aa'),borderRadius:4}]},
+    options:{...baseOpts(DL_H),indexAxis:'y',scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},y:{grid:{display:false},ticks:{color:'#e6edf3',font:{size:10}}}}}});
+
+  dc('c-arma-hora');
+  charts['c-arma-hora']=new Chart(document.getElementById('c-arma-hora'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.arma_hora,backgroundColor:D.arma_hora.map(v=>v>=5?G.red+'dd':G.red+'66'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  rankList('rank-arma-mun',D.arma_mun,G.red);
+
+  dc('c-armas-comp');
+  charts['c-armas-comp']=new Chart(document.getElementById('c-armas-comp'),{type:'bar',
+    data:{labels:['Restritas','Permitidas'],datasets:[{data:[23,58],backgroundColor:[G.red+'cc',G.gold+'cc'],borderRadius:6}]},
+    options:{...baseOpts(DL_ON),scales:{x:{grid:{display:false},ticks:{color:'#8b949e'}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'},beginAtZero:true}}}});
+}
+
+/* ════ CONTRABANDO ════ */
+function initContrabando(){
+  dc('c-cont-mes');
+  charts['c-cont-mes']=new Chart(document.getElementById('c-cont-mes'),{type:'bar',
+    data:{labels:MESES,datasets:[
+      {label:'2025',data:D.cont_mes_25,backgroundColor:G.yellow+'88',borderRadius:4},
+      {label:'2026',data:D.cont_mes_26,backgroundColor:G.orange+'88',borderRadius:4}]},
+    options:{...baseOpts({display:false}),plugins:{legend:{display:true,labels:{color:'#8b949e'}},datalabels:{display:false}}}});
+
+  dc('c-cont-hora');
+  charts['c-cont-hora']=new Chart(document.getElementById('c-cont-hora'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.cont_hora,backgroundColor:D.cont_hora.map(v=>v>=15?G.orange+'dd':G.yellow+'88'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  rankList('rank-cont-mun',D.cont_mun,G.orange);
+  rankList('rank-cont-malha',D.cont_malha,G.yellow);
+}
+
+/* ════ TEMPORAL ════ */
+function initTemporal(){
+  dc('c-hora-geral');
+  charts['c-hora-geral']=new Chart(document.getElementById('c-hora-geral'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.por_hora,backgroundColor:D.por_hora.map(v=>v>=110?G.red+'cc':G.gold+'77'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  dc('c-dia-semana');
+  charts['c-dia-semana']=new Chart(document.getElementById('c-dia-semana'),{type:'bar',
+    data:{labels:DIAS,datasets:[{data:D.por_dia,backgroundColor:D.por_dia.map(v=>v>=240?G.red+'cc':G.gold+'88'),borderRadius:4}]},
+    options:baseOpts(DL_ON)});
+
+  // Heatmap
+  const maxVal=Math.max(...D.heatmap.flat());
+  let html='<table class="heatmap-table"><tr><td class="hm-label-r"></td>';
+  for(let h=0;h<24;h++) html+=`<td class="hm-label-c">${h}h</td>`;
+  html+='</tr>';
+  D.heatmap.forEach((row,d)=>{
+    html+=`<tr><td class="hm-label-r">${DIAS[d]}</td>`;
+    row.forEach(v=>{
+      const pct=v/maxVal;
+      const bg=pct===0?'#21262d':`rgba(240,168,48,${0.1+pct*0.9})`;
+      const color=pct>0.5?'#000':'#e6edf3';
+      html+=`<td class="hm-cell" style="background:${bg};color:${color}" title="${v} ocorrências">${v>0?v:''}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</table>';
+  document.getElementById('heatmap-container').innerHTML=html;
+
+  dc('c-hora-traf');
+  charts['c-hora-traf']=new Chart(document.getElementById('c-hora-traf'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.trafico_hora,backgroundColor:D.trafico_hora.map(v=>v>=20?G.orange+'dd':G.orange+'66'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  dc('c-hora-cont2');
+  charts['c-hora-cont2']=new Chart(document.getElementById('c-hora-cont2'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.cont_hora,backgroundColor:D.cont_hora.map(v=>v>=15?G.yellow+'dd':G.yellow+'66'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+
+  dc('c-hora-roubo2');
+  charts['c-hora-roubo2']=new Chart(document.getElementById('c-hora-roubo2'),{type:'bar',
+    data:{labels:HORAS,datasets:[{data:D.roubo_hora,backgroundColor:D.roubo_hora.map(v=>v>=5?G.red+'dd':G.red+'66'),borderRadius:3}]},
+    options:baseOpts({display:false})});
+}
+
+/* ════ MALHA ════ */
+function initMalha(){
+  dc('c-malha-total');
+  const malhas=Object.entries(D.malhas).sort((a,b)=>b[1]-a[1]);
+  charts['c-malha-total']=new Chart(document.getElementById('c-malha-total'),{type:'bar',
+    data:{labels:malhas.map(x=>x[0]),datasets:[{data:malhas.map(x=>x[1]),backgroundColor:malhas.map((_,i)=>i===0?G.red+'cc':G.gold+'77'),borderRadius:4}]},
+    options:{...baseOpts(DL_H),indexAxis:'y',scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},y:{grid:{display:false},ticks:{color:'#e6edf3',font:{size:10}}}}}});
+
+  // Composição por malha
+  const topM=['000/310','000/330','000/334','000/320','000/322','000/255','000/333','000/326','000/425','000/304'];
+  const trafM=topM.map(m=>D.trafico_malha[m]||0);
+  const contM=topM.map(m=>D.cont_malha[m]||0);
+  const rouboM=topM.map(m=>D.roubo_malha[m]||0);
+  const recM=topM.map(m=>D.rec_malha[m]||0);
+  dc('c-malha-comp');
+  charts['c-malha-comp']=new Chart(document.getElementById('c-malha-comp'),{type:'bar',
+    data:{labels:topM,datasets:[
+      {label:'Tráfico',data:trafM,backgroundColor:G.orange+'cc',borderRadius:2},
+      {label:'Contrabando',data:contM,backgroundColor:G.yellow+'cc',borderRadius:2},
+      {label:'Roubo',data:rouboM,backgroundColor:G.red+'cc',borderRadius:2},
+      {label:'Receptação',data:recM,backgroundColor:G.purple+'cc',borderRadius:2}]},
+    options:{...baseOpts({display:false}),plugins:{legend:{display:true,labels:{color:'#8b949e',font:{size:10}}},datalabels:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#8b949e',font:{size:9}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}}}}});
+
+  // Tabela
+  const tbl=document.getElementById('tbl-malha');
+  tbl.innerHTML=`<thead><tr><th>Malha</th><th>Total</th><th>Tráfico</th><th>Contrabando</th><th>Roubo/Furto</th><th>Receptação</th><th>Veículo</th></tr></thead><tbody>`+
+    topM.map(m=>{
+      const tot=D.malhas[m]||0;
+      const tr=D.trafico_malha[m]||0;
+      const co=D.cont_malha[m]||0;
+      const ro=(D.roubo_malha[m]||0)+(D.furto_malha[m]||0);
+      const re=D.rec_malha[m]||0;
+      const ve=({  "000/310":51,"000/334":28,"000/330":22,"000/322":14,"000/304":12,"000/320":10,"000/308":9,"000/333":8,"000/127":8,"000/255":7})[m]||0;
+      return`<tr><td><strong style="color:${m==='000/310'?G.red:G.gold}">${m}</strong></td>
+        <td><strong>${tot}</strong></td>
+        <td>${tr>0?`<span class="bx bx-orange">${tr}</span>`:'-'}</td>
+        <td>${co>0?`<span class="bx bx-yellow">${co}</span>`:'-'}</td>
+        <td>${ro>0?`<span class="bx bx-red">${ro}</span>`:'-'}</td>
+        <td>${re>0?`<span class="bx bx-purple">${re}</span>`:'-'}</td>
+        <td>${ve>0?`<span class="bx bx-blue">${ve}</span>`:'-'}</td></tr>`;
+    }).join('')+'</tbody>';
+}
+
+/* ════ CIA ════ */
+function initCia(){
+  const ciaColors={'1ª CIA':G.gold,'2ª CIA':G.green,'3ª CIA':G.blue,'4ª CIA':G.red};
+  const ciaData={'1ª CIA':{traf:73,cont:8,roubo:12,arma:8},'2ª CIA':{traf:42,cont:21,roubo:10,arma:7},'3ª CIA':{traf:88,cont:62,roubo:15,arma:22},'4ª CIA':{traf:75,cont:56,roubo:11,arma:22}};
+  
+  document.getElementById('cia-cards').innerHTML=Object.entries(D.por_cia).map(([c,v])=>`
+    <div class="cia-card" style="border-top-color:${ciaColors[c]}">
+      <div class="cia-name" style="color:${ciaColors[c]}">${c}</div>
+      <div class="cia-row"><span class="cia-k">Total criminal</span><span class="cia-v">${v}</span></div>
+      <div class="cia-row"><span class="cia-k">Tráfico</span><span class="cia-v">${ciaData[c]?.traf||0}</span></div>
+      <div class="cia-row"><span class="cia-k">Contrabando</span><span class="cia-v">${ciaData[c]?.cont||0}</span></div>
+      <div class="cia-row"><span class="cia-k">Roubo/Furto</span><span class="cia-v">${ciaData[c]?.roubo||0}</span></div>
+      <div class="cia-row"><span class="cia-k">Armas</span><span class="cia-v">${ciaData[c]?.arma||0}</span></div>
+    </div>`).join('');
+
+  dc('c-cia-bar');
+  charts['c-cia-bar']=new Chart(document.getElementById('c-cia-bar'),{type:'bar',
+    data:{labels:Object.keys(D.por_cia),datasets:[{data:Object.values(D.por_cia),backgroundColor:Object.keys(D.por_cia).map(c=>ciaColors[c]+'cc'),borderRadius:6}]},
+    options:baseOpts(DL_ON)});
+
+  dc('c-pelotao');
+  const pels=Object.entries(D.por_pelotao).sort((a,b)=>b[1]-a[1]);
+  charts['c-pelotao']=new Chart(document.getElementById('c-pelotao'),{type:'bar',
+    data:{labels:pels.map(x=>x[0]),datasets:[{data:pels.map(x=>x[1]),backgroundColor:pels.map((x,i)=>i===0?G.red+'cc':G.gold+'88'),borderRadius:4}]},
+    options:baseOpts(DL_ON)});
+}
+
+/* ════ INTELIGÊNCIA ════ */
+function initInteligencia(){
+  // Tabela de prioridades
+  const tbl=document.getElementById('tbl-intel');
+  const rows=[
+    {nat:'Contrabando/Descaminho',vol:147,tend:'▲ +203%',risco:'CRÍTICO',malha:'000/310',mun:'SJRP',cor:G.red},
+    {nat:'Tráfico de Entorpecentes',vol:278,tend:'▲ estável',risco:'CRÍTICO',malha:'000/310',mun:'SJRP/Araraquara',cor:G.red},
+    {nat:'Cocaína — novo padrão',vol:null,tend:'▲ surgiu 2026',risco:'CRÍTICO',malha:'múltiplas',mun:'Ribeirão Pto',cor:G.red},
+    {nat:'Receptação',vol:85,tend:'→ estável',risco:'ALTO',malha:'000/310',mun:'Ribeirão Pto',cor:G.orange},
+    {nat:'Veículo (adulter./localiz.)',vol:258,tend:'→ estável',risco:'ALTO',malha:'000/310',mun:'SJRP',cor:G.orange},
+    {nat:'Arma de Fogo (restrita)',vol:23,tend:'→ estável',risco:'ALTO',malha:'variável',mun:'SJRP/Catiguá',cor:G.orange},
+    {nat:'Roubo',vol:48,tend:'→ estável',risco:'MÉDIO',malha:'000/330',mun:'Franca',cor:G.yellow},
+    {nat:'Estelionato/Fraude',vol:28,tend:'→',risco:'MÉDIO',malha:'variável',mun:'variável',cor:G.yellow},
+  ];
+  tbl.innerHTML='<thead><tr><th>Natureza</th><th>Volume</th><th>Tendência</th><th>Nível de Risco</th><th>Malha Crítica</th><th>Município Crítico</th></tr></thead><tbody>'+
+    rows.map(r=>`<tr>
+      <td><strong>${r.nat}</strong></td>
+      <td>${r.vol||'—'}</td>
+      <td style="color:${r.tend.includes('▲')?G.red:r.tend.includes('→')?G.yellow:G.green}">${r.tend}</td>
+      <td><span class="bx" style="background:${r.cor}22;color:${r.cor}">${r.risco}</span></td>
+      <td style="color:${G.gold};font-weight:600">${r.malha}</td>
+      <td>${r.mun}</td>
+    </tr>`).join('')+'</tbody>';
+
+  // Trend chart
+  const trend25=D.por_mes_25.map((v,i)=>v);
+  const trend26=D.por_mes_26.map((v,i)=>v);
+  dc('c-intel-trend');
+  charts['c-intel-trend']=new Chart(document.getElementById('c-intel-trend'),{type:'line',
+    data:{labels:MESES,datasets:[
+      {label:'2025 Criminal',data:trend25,borderColor:G.gold,backgroundColor:G.gold+'22',fill:true,tension:.35,pointRadius:3,borderWidth:2},
+      {label:'2026 Criminal',data:trend26,borderColor:G.red,backgroundColor:G.red+'22',fill:true,tension:.35,pointRadius:3,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8b949e',font:{size:10}}},datalabels:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#8b949e'}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'},beginAtZero:true}}}});
+
+  dc('c-intel-mun');
+  const muns=Object.entries(D.municipios).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  charts['c-intel-mun']=new Chart(document.getElementById('c-intel-mun'),{type:'bar',
+    data:{labels:muns.map(x=>x[0].replace('São José Do Rio Preto','SJRP').replace('Ribeirão Preto','Ribeirão Pto')),datasets:[{data:muns.map(x=>x[1]),backgroundColor:muns.map((_,i)=>i<3?G.red+'cc':G.gold+'77'),borderRadius:4}]},
+    options:{...baseOpts(DL_H),indexAxis:'y',scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},y:{grid:{display:false},ticks:{color:'#e6edf3',font:{size:10}}}}}});
+}
+
+// INIT
+initGeral();
+</script>
+</body>
+</html>
