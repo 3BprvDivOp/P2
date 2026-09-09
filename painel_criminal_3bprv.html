@@ -437,7 +437,7 @@ const isC = c => r => r.Cat === c;
 function cnt(d,f){const o={};d.forEach(r=>{const k=f(r);if(k&&k!=='--')o[k]=(o[k]||0)+1;});return o;}
 function sum(d,f){return d.reduce((s,r)=>s+(f(r)||0),0);}
 function sumBy(d,fk,fv){const o={};d.forEach(r=>{const k=fk(r);if(k&&k!=='--')o[k]=(o[k]||0)+(fv(r)||0);});return o;}
-function top(o,n){return Object.fromEntries(Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n));}
+function topN(o,n){return Object.fromEntries(Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n));}
 function byHour(d,p){const a=Array(24).fill(0);d.forEach(r=>{if(r.HN>=0&&(!p||p(r)))a[r.HN]++;});return a;}
 function byDow(d,p){const a=Array(7).fill(0);d.forEach(r=>{if(!p||p(r))a[r.DOW]++;});return a;}
 function byMonth(d,ano,p){const a=Array(12).fill(0);d.forEach(r=>{if(r.Ano===ano&&(!p||p(r)))a[+r.DS.slice(5,7)-1]++;});return a;}
@@ -524,9 +524,28 @@ async function carregar(){
 
   // Cada ano é buscado em paralelo, mas o painel já aparece assim que o
   // primeiro chega — não precisa esperar o mais lento.
+  const erros = [];
+
+  /* Busca via JSONP (<script>) em vez de fetch. O Apps Script não envia
+     cabeçalhos CORS aceitáveis quando a página está em outro domínio, como
+     no GitHub Pages — a tag <script> não passa por essa checagem. */
+  let jsonpSeq = 0;
+  function buscaJSONP(url, ms){
+    return new Promise((ok,falha)=>{
+      const cb = '__crim_cb_' + (++jsonpSeq) + '_' + Date.now();
+      const tag = document.createElement('script');
+      const t = setTimeout(()=>{limpar();falha(new Error('tempo esgotado ('+(ms/1000)+'s)'));}, ms);
+      function limpar(){ clearTimeout(t); delete window[cb];
+        if(tag.parentNode) tag.parentNode.removeChild(tag); }
+      window[cb] = d => { limpar(); ok(d); };
+      tag.onerror = () => { limpar(); falha(new Error('não foi possível contatar a API')); };
+      tag.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
+      document.head.appendChild(tag);
+    });
+  }
+
   const tarefas = ANOS.map(a =>
-    fetch(APPS_SCRIPT_CRIM+'?ano='+a+'&_t='+Date.now())
-      .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    buscaJSONP(APPS_SCRIPT_CRIM+'?ano='+a+'&_t='+Date.now(), 120000)
       .then(j=>{if(!j.ok)throw new Error(j.error||'erro API');return j.rows||[];})
       .then(rows=>{
         allData = allData.concat(rows.map(toObj).filter(Boolean));
@@ -535,12 +554,25 @@ async function carregar(){
         else if(allData.length){ populateFilters(); applyAndRender(); }
         st('Carregando… '+prontos+'/'+ANOS.length+' anos · '+ni(allData.length)+' ocorrências');
       })
-      .catch(e=>{ prontos++; console.warn('Falha '+a+':',e.message); return null; }));
+      .catch(e=>{
+        prontos++;
+        erros.push(a+': '+e.message);
+        console.error('Falha ao carregar '+a+' →', e);
+        return null;
+      }));
 
   await Promise.all(tarefas);
   ov(false);
 
-  if(!allData.length){ st('Erro: nenhuma ocorrência retornada. Verifique a URL do Apps Script.',false); return; }
+  if(!allData.length){
+    const det = erros.length ? erros.join(' · ') : 'a API respondeu sem nenhuma linha';
+    st('Falha ao carregar — '+det,false);
+    ov(true,'<div style="color:#f85149;font-weight:700">Não foi possível carregar os dados</div>'+
+            '<small>'+det+'</small><br><small>Abra o Console (F12) para o detalhe técnico.</small>');
+    document.querySelector('#overlay .spin').style.display='none';
+    return;
+  }
+  if(erros.length) console.warn('Anos que falharam:',erros);
   st('Atualizado em '+new Date().toLocaleString('pt-BR')+' · '+ni(allData.length)+
      ' ocorrências criminais · '+((Date.now()-t0)/1000).toFixed(0)+'s',true);
 }
@@ -670,20 +702,20 @@ function fmtBR(ds){const p=ds.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 /* ── GERAL ── */
 function rGeral(){
   const d=filteredData;
-  const nats=top(cnt(d,r=>r.Nat),12);
+  const nats=topN(cnt(d,r=>r.Nat),12);
   chBar('c-nat-bar',Object.keys(nats).map(s=>s.length>28?s.slice(0,26)+'…':s),Object.values(nats),G.red,true);
 
   const cias=cnt(d,r=>r.Cia);
   chDonut('c-cia-donut',Object.keys(cias),Object.values(cias),[G.gold,G.green,G.blue,G.red,G.purple,G.teal]);
 
-  const mal=top(cnt(d,r=>r.Malha),10);
+  const mal=topN(cnt(d,r=>r.Malha),10);
   chBar('c-malha-bar',Object.keys(mal),Object.values(mal),G.orange,true);
 
   const anos=anosDe(d), cores=[G.blue,G.red,G.gold,G.green];
   chLine('c-mes-total',MESES,anos.map((a,i)=>({l:a,d:byMonth(d,a),c:cores[i%4]})));
   document.getElementById('cs-mes-total').textContent=anos.join(' vs ')||'—';
 
-  const mun=top(cnt(d,r=>r.Mun),10);
+  const mun=topN(cnt(d,r=>r.Mun),10);
   chBar('c-mun-bar',Object.keys(mun),Object.values(mun),G.blue,true);
 
   const sen=cnt(d,r=>r.Sent);
@@ -736,8 +768,8 @@ function rTrafico(){
   chBar('c-traf-hora',HORAS,byHour(t),G.orange);
   chLine('c-maconha-mes',MESES,anos.map((a,i)=>({l:a,d:sumMonth(d,a,r=>r.Maconha),c:cores[i%4]})));
   chLine('c-cocaina-mes',MESES,anos.map((a,i)=>({l:a,d:sumMonth(d,a,r=>r.Cocaina),c:cores[i%4]})));
-  rankList('rank-traf-mun',  top(cnt(t,r=>r.Mun),10),  G.orange);
-  rankList('rank-traf-malha',top(cnt(t,r=>r.Malha),10),G.red);
+  rankList('rank-traf-mun',  topN(cnt(t,r=>r.Mun),10),  G.orange);
+  rankList('rank-traf-malha',topN(cnt(t,r=>r.Malha),10),G.red);
 }
 
 /* ── ROUBO / FURTO ── */
@@ -761,9 +793,9 @@ function rRoubo(){
   chBar('c-roubo-hora',HORAS,byHour(ro),G.red);
   chBar('c-furto-hora',HORAS,byHour(fu),G.orange);
   chBar('c-veic-hora', HORAS,byHour(ve),G.purple);
-  rankList('rank-roubo-malha',top(cnt(ro,r=>r.Malha),10),G.red);
-  rankList('rank-furto-malha',top(cnt(fu,r=>r.Malha),10),G.orange);
-  rankList('rank-rec-malha',  top(cnt(re,r=>r.Malha),10),G.yellow);
+  rankList('rank-roubo-malha',topN(cnt(ro,r=>r.Malha),10),G.red);
+  rankList('rank-furto-malha',topN(cnt(fu,r=>r.Malha),10),G.orange);
+  rankList('rank-rec-malha',  topN(cnt(re,r=>r.Malha),10),G.yellow);
 }
 
 /* ── ARMAS ── */
@@ -792,7 +824,7 @@ function rArmas(){
     {label:'Armas de uso restrito',cls:'i-purple',color:'purple',val:ni(aR),desc:'Maior potencial ofensivo'}
   ]);
 
-  const tt=top(tipos,14);
+  const tt=topN(tipos,14);
   chBar('c-armas-tipo',Object.keys(tt),Object.values(tt),G.red,true);
   chBar('c-arma-hora',HORAS,byHour(oc),G.yellow);
 
@@ -833,8 +865,8 @@ function rCont(){
 
   chLine('c-cont-mes',MESES,anos.map((a,i)=>({l:a,d:byMonth(d,a,isC('contrabando')),c:cores[i%4]})));
   chBar('c-cont-hora',HORAS,byHour(c),G.teal);
-  rankList('rank-cont-mun',  top(cnt(c,r=>r.Mun),10),  G.teal);
-  rankList('rank-cont-malha',top(cnt(c,r=>r.Malha),10),G.orange);
+  rankList('rank-cont-mun',  topN(cnt(c,r=>r.Mun),10),  G.teal);
+  rankList('rank-cont-malha',topN(cnt(c,r=>r.Malha),10),G.orange);
 }
 
 /* ── TEMPORAL ── */
