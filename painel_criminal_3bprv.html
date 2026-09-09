@@ -544,8 +544,21 @@ async function carregar(){
     });
   }
 
+  /* Tenta fetch primeiro. Se o navegador bloquear por origem cruzada, ou se o
+     Apps Script não responder, cai para JSONP. Assim o painel funciona tanto
+     com a versão da API que suporta ?callback= quanto com a que não suporta. */
+  function buscaAno(a){
+    const url = APPS_SCRIPT_CRIM+'?ano='+a+'&_t='+Date.now();
+    return fetch(url)
+      .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .catch(e=>{
+        console.warn('fetch falhou para '+a+' ('+e.message+') — tentando JSONP');
+        return buscaJSONP(url, 120000);
+      });
+  }
+
   const tarefas = ANOS.map(a =>
-    buscaJSONP(APPS_SCRIPT_CRIM+'?ano='+a+'&_t='+Date.now(), 120000)
+    buscaAno(a)
       .then(j=>{if(!j.ok)throw new Error(j.error||'erro API');return j.rows||[];})
       .then(rows=>{
         allData = allData.concat(rows.map(toObj).filter(Boolean));
