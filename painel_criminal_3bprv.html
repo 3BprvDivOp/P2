@@ -158,6 +158,15 @@ tr:hover td{background:var(--surface)}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ov-txt{font-size:13px;color:var(--text)}.ov-txt small{color:var(--muted);font-size:11px}
 .empty{padding:40px;text-align:center;color:var(--muted);font-size:13px}
+#mapa{height:520px;border-radius:10px;background:#0d1117}
+.leaflet-container{background:#0d1117}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.leaflet-popup-content{font-size:12px;line-height:1.5}
+.leaflet-control-attribution{background:rgba(13,17,23,.8)!important;color:#8b949e!important;font-size:9px}
+.leaflet-control-attribution a{color:#8b949e!important}
+.mapa-legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin-top:10px}
+.mapa-legenda span{display:flex;align-items:center;gap:5px}
+.mapa-legenda i{width:11px;height:11px;border-radius:50%;display:inline-block}
 
 @media(max-width:900px){
   .kpi-bar{grid-template-columns:repeat(4,1fr)}
@@ -166,6 +175,9 @@ tr:hover td{background:var(--surface)}
   .filters{gap:8px}
 }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 </head>
@@ -229,6 +241,7 @@ tr:hover td{background:var(--surface)}
   <div class="tab" onclick="showTab('temporal',this)">Hora / Dia</div>
   <div class="tab" onclick="showTab('malha',this)">Malha Viária</div>
   <div class="tab" onclick="showTab('cia',this)">Por CIA</div>
+  <div class="tab" onclick="showTab('mapa',this)">📍 Mapa</div>
   <div class="tab" onclick="showTab('inteligencia',this)">⭐ Inteligência</div>
 </div>
 
@@ -353,6 +366,35 @@ tr:hover td{background:var(--surface)}
   </div>
 </div>
 
+<!-- ═══════════ MAPA ═══════════ -->
+<div class="tc" id="tab-mapa">
+  <div class="info-box" id="box-mapa">—</div>
+  <div class="card">
+    <div class="ct">Mapa de calor — ocorrências criminais</div>
+    <div class="cs" id="cs-mapa">Concentração geográfica no recorte filtrado</div>
+    <div id="mapa"></div>
+    <div class="mapa-legenda">
+      <span><i style="background:#388bfd"></i>baixa</span>
+      <span><i style="background:#3fb950"></i></span>
+      <span><i style="background:#d29922"></i>média</span>
+      <span><i style="background:#ff8c00"></i></span>
+      <span><i style="background:#f85149"></i>alta concentração</span>
+    </div>
+  </div>
+  <div class="g21">
+    <div class="card"><div class="ct">Trechos críticos — rodovia × faixa de km</div>
+      <div class="cs">Top 15 faixas de 10 km com mais ocorrências</div>
+      <div class="cwxl"><canvas id="c-km-trechos"></canvas></div></div>
+    <div class="card"><div class="ct">Rodovias</div><div class="cs">Top 10 por volume</div>
+      <div class="rank-list" id="rank-rodovias"></div></div>
+  </div>
+  <div class="card">
+    <div class="ct">Pontos de maior incidência</div>
+    <div class="cs">Top 20 trechos com composição por natureza</div>
+    <div class="tw"><table id="tbl-pontos"></table></div>
+  </div>
+</div>
+
 <!-- ═══════════ INTELIGÊNCIA ═══════════ -->
 <div class="tc" id="tab-inteligencia">
   <div class="info-box"><strong>Visão Estratégica:</strong> esta aba consolida as análises que respondem ao documento estratégico da Agência. Todos os números respeitam os filtros ativos.</div>
@@ -374,6 +416,10 @@ tr:hover td{background:var(--surface)}
    ══════════════════════════════════════════════════════════════════ */
 const APPS_SCRIPT_CRIM = 'https://script.google.com/macros/s/AKfycbzY7dhZs3Me2OTsuYUVXqnS80iS8nAtLuD6iniwWpitDjS5_7TN-1Kx1-g2UbfstGzi/exec';
 const ANOS = ['2024','2025','2026'];   // anos fechados vêm do cache, então é barato
+
+/* Naturezas escondidas do gráfico "Naturezas criminais — Top 12" (Visão Geral).
+   Continuam contando nos KPIs e nas demais abas. Escreva sem acento. */
+const OCULTAR_NO_TOP12 = ['INFRACOES E CRIMES DE TRANSITO', 'VEICULO'];
 /* ════════════════════════════════════════════════════════════════ */
 
 Chart.register(ChartDataLabels);
@@ -664,7 +710,8 @@ function init(){
 
 /* ───────────── render ───────────── */
 const RENDER = {geral:rGeral,trafico:rTrafico,roubo:rRoubo,armas:rArmas,
-  contrabando:rCont,temporal:rTemporal,malha:rMalha,cia:rCia,inteligencia:rIntel};
+  contrabando:rCont,temporal:rTemporal,malha:rMalha,cia:rCia,mapa:rMapa,
+  inteligencia:rIntel};
 
 function showTab(id,el){
   document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
@@ -715,7 +762,7 @@ function fmtBR(ds){const p=ds.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 /* ── GERAL ── */
 function rGeral(){
   const d=filteredData;
-  const nats=topN(cnt(d,r=>r.Nat),12);
+  const nats=topN(cnt(d.filter(r=>!OCULTAR_NO_TOP12.includes(nrm(r.Nat))),r=>r.Nat),12);
   chBar('c-nat-bar',Object.keys(nats).map(s=>s.length>28?s.slice(0,26)+'…':s),Object.values(nats),G.red,true);
 
   const cias=cnt(d,r=>r.Cia);
@@ -987,6 +1034,136 @@ function rCia(){
 
   document.getElementById('cs-cia').textContent = cias.length?`${cias[0][0]} lidera com ${ni(cias[0][1])}`:'—';
   document.getElementById('cs-pel').textContent = pel.length ?`${pel[0][0]} concentra ${ni(pel[0][1])} ocorrências`:'—';
+}
+
+/* ── MAPA ── */
+let mapObj=null, heatLayer=null, marcadores=null;
+
+/** km bruto ("188.4", "443", "188,4") -> número, ou null. */
+function kmNum(v){
+  const m=String(v||'').replace(',','.').match(/-?\d+(\.\d+)?/);
+  if(!m) return null;
+  const n=parseFloat(m[0]);
+  return (n>=0 && n<=900) ? n : null;
+}
+/** Agrupa em faixas de 10 km: 188.4 -> "180-190" */
+function faixaKm(n){ const b=Math.floor(n/10)*10; return b+'-'+(b+10); }
+
+function rMapa(){
+  const d=filteredData;
+
+  /* --- trechos por rodovia × faixa de km (não depende de coordenada) --- */
+  const trechos={};
+  d.forEach(r=>{
+    const n=kmNum(r.KM); if(n===null) return;
+    const rod=(r.Rod||'—').trim(); if(!rod||rod==='--') return;
+    const k=rod+' · km '+faixaKm(n);
+    (trechos[k]=trechos[k]||{tot:0,cats:{},muns:{},malhas:{}});
+    trechos[k].tot++;
+    trechos[k].cats[r.Cat]=(trechos[k].cats[r.Cat]||0)+1;
+    if(r.Mun)   trechos[k].muns[r.Mun]=(trechos[k].muns[r.Mun]||0)+1;
+    if(r.Malha) trechos[k].malhas[r.Malha]=(trechos[k].malhas[r.Malha]||0)+1;
+  });
+  const ord=Object.entries(trechos).sort((a,b)=>b[1].tot-a[1].tot);
+
+  const t15=ord.slice(0,15);
+  chBar('c-km-trechos', t15.map(x=>x[0].length>34?x[0].slice(0,32)+'…':x[0]),
+        t15.map(x=>x[1].tot), G.red, true);
+
+  rankList('rank-rodovias', topN(cnt(d,r=>r.Rod),10), G.gold);
+
+  /* --- tabela dos 20 maiores --- */
+  const th=['#','Trecho','Município','Malha','Total','Tráfico','Contrab.','Roubo/Furto','Armas'];
+  let html='<thead><tr>'+th.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+  ord.slice(0,20).forEach(([k,v],i)=>{
+    const c=x=>v.cats[x]||0;
+    const maior=o=>{const e=Object.entries(o).sort((a,b)=>b[1]-a[1]);return e.length?e[0][0]:'—';};
+    html+=`<tr><td>${i+1}</td><td><strong>${k}</strong></td>
+      <td>${maior(v.muns)}</td><td>${maior(v.malhas)}</td>
+      <td><span class="bx bx-red">${ni(v.tot)}</span></td>
+      <td>${ni(c('trafico'))}</td><td>${ni(c('contrabando'))}</td>
+      <td>${ni(c('roubo')+c('furto'))}</td>
+      <td>${ni(sumTrecho(d,k))}</td></tr>`;
+  });
+  document.getElementById('tbl-pontos').innerHTML = ord.length
+    ? html+'</tbody>'
+    : '<tbody><tr><td class="empty">Sem dados no recorte</td></tr></tbody>';
+
+  /* --- mapa de calor geográfico --- */
+  const pts = d.filter(r=>r.Lat && r.Lon &&
+                          r.Lat<=-19 && r.Lat>=-26 && r.Lon<=-44 && r.Lon>=-54);
+  const cx  = document.getElementById('cs-mapa');
+  const box = document.getElementById('box-mapa');
+
+  const topT = ord.length ? ord[0] : null;
+  box.innerHTML = topT
+    ? `<strong>Trecho de maior incidência:</strong> ${topT[0]} — <strong>${ni(topT[1].tot)} ocorrências</strong> no recorte. `+
+      `A tabela abaixo lista os 20 trechos mais críticos com a composição por natureza.`
+    : 'Sem ocorrências no recorte filtrado.';
+
+  if(typeof L === 'undefined'){ cx.textContent='Biblioteca de mapas não carregou.'; return; }
+
+  if(!pts.length){
+    cx.textContent = 'Sem coordenadas no recorte — use os trechos por km abaixo.';
+    document.getElementById('mapa').innerHTML =
+      '<div class="empty">As ocorrências deste recorte não têm latitude/longitude preenchidas.<br>'+
+      'A análise por rodovia e faixa de km, logo abaixo, não depende de coordenadas.</div>';
+    if(mapObj){ mapObj.remove(); mapObj=null; heatLayer=null; }
+    return;
+  }
+
+  cx.textContent = ni(pts.length)+' de '+ni(d.length)+' ocorrências têm coordenada';
+
+  if(!mapObj){
+    document.getElementById('mapa').innerHTML='';
+    mapObj = L.map('mapa',{scrollWheelZoom:false}).setView([-21.2,-48.5],8);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      {attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:18}).addTo(mapObj);
+    mapObj.on('click',()=>mapObj.scrollWheelZoom.enable());
+  }
+  if(heatLayer){ mapObj.removeLayer(heatLayer); heatLayer=null; }
+  if(marcadores){ mapObj.removeLayer(marcadores); marcadores=null; }
+
+  heatLayer = L.heatLayer(pts.map(r=>[r.Lat,r.Lon,1]), {
+    radius:18, blur:22, minOpacity:.35,
+    gradient:{0.2:'#388bfd',0.4:'#3fb950',0.6:'#d29922',0.8:'#ff8c00',1:'#f85149'}
+  }).addTo(mapObj);
+
+  /* marcadores só nos 25 pontos mais repetidos, para não poluir */
+  const agr={};
+  pts.forEach(r=>{
+    const k=r.Lat.toFixed(3)+','+r.Lon.toFixed(3);
+    (agr[k]=agr[k]||{lat:r.Lat,lon:r.Lon,n:0,mun:r.Mun,rod:r.Rod,km:r.KM,nats:{}});
+    agr[k].n++; agr[k].nats[r.Nat]=(agr[k].nats[r.Nat]||0)+1;
+  });
+  const quentes=Object.values(agr).sort((a,b)=>b.n-a.n).slice(0,25).filter(p=>p.n>1);
+  if(quentes.length){
+    marcadores=L.layerGroup(quentes.map(p=>{
+      const nats=Object.entries(p.nats).sort((a,b)=>b[1]-a[1]).slice(0,3)
+        .map(x=>x[0]+' ('+x[1]+')').join('<br>');
+      return L.circleMarker([p.lat,p.lon],{
+        radius:Math.min(16,5+Math.sqrt(p.n)*2),
+        color:'#f0a830',weight:2,fillColor:'#f85149',fillOpacity:.55
+      }).bindPopup(`<strong>${p.mun||'—'}</strong><br>${p.rod||''} km ${p.km||'—'}<br>`+
+                   `<strong>${p.n} ocorrências</strong><br>${nats}`);
+    })).addTo(mapObj);
+  }
+
+  try{
+    mapObj.fitBounds(L.latLngBounds(pts.map(r=>[r.Lat,r.Lon])).pad(.08));
+  }catch(e){}
+  setTimeout(()=>mapObj.invalidateSize(),60);
+}
+
+/** Armas apreendidas nas ocorrências de um trecho "ROD · km A-B". */
+function sumTrecho(d,chave){
+  const i=chave.lastIndexOf(' · km ');
+  const rod=chave.slice(0,i), fx=chave.slice(i+6);
+  return d.reduce((s,r)=>{
+    const n=kmNum(r.KM);
+    return (n!==null && (r.Rod||'').trim()===rod && faixaKm(n)===fx)
+      ? s+r.ArmaP+r.ArmaR : s;
+  },0);
 }
 
 /* ── INTELIGÊNCIA ── */
