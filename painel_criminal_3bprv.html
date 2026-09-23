@@ -24,7 +24,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .badge-gold{border-color:rgba(240,168,48,.4);color:var(--gold)}
 
 /* KPI BAR */
-.kpi-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
+.kpi-bar{display:grid;grid-template-columns:repeat(9,1fr);gap:10px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
 .kpi{background:var(--card);border-radius:10px;padding:11px 14px;border-left:3px solid transparent}
 .kpi.k-red{border-left-color:var(--red)}.kpi.k-orange{border-left-color:var(--orange)}
 .kpi.k-yellow{border-left-color:var(--yellow)}.kpi.k-blue{border-left-color:var(--blue)}
@@ -211,6 +211,7 @@ tr:hover td{background:var(--surface)}
   <div class="kpi k-orange"><div class="kpi-label">Tráfico entorpecentes</div><div class="kpi-val" id="kTrafico">—</div><div class="kpi-sub" id="kTraficoSub">—</div></div>
   <div class="kpi k-yellow"><div class="kpi-label">Maconha apreendida</div><div class="kpi-val" id="kMaconha">—</div><div class="kpi-sub">kg</div></div>
   <div class="kpi k-purple"><div class="kpi-label">Cocaína apreendida</div><div class="kpi-val" id="kCocaina">—</div><div class="kpi-sub">kg</div></div>
+  <div class="kpi k-green"><div class="kpi-label">Outras drogas</div><div class="kpi-val" id="kOutras">—</div><div class="kpi-sub">kg</div></div>
   <div class="kpi k-red"><div class="kpi-label">Armas apreendidas</div><div class="kpi-val" id="kArmas">—</div><div class="kpi-sub" id="kArmasSub">—</div></div>
   <div class="kpi k-teal"><div class="kpi-label">Contrabando/Descaminho</div><div class="kpi-val" id="kCont">—</div><div class="kpi-sub">ocorrências</div></div>
   <div class="kpi k-gold"><div class="kpi-label">Receptação</div><div class="kpi-val" id="kRec">—</div><div class="kpi-sub">ocorrências</div></div>
@@ -470,7 +471,7 @@ function toObj(r){
     Mun:r[7]||'', Rod:r[8]||'', Nat:r[9]||'', Sent:r[10]||'',
     Presos:+r[11]||0, PresosMenor:+r[12]||0,
     Maconha:+r[13]||0, Cocaina:+r[14]||0, Crack:+r[15]||0,
-    Sint:+r[16]||0, Cigarro:+r[17]||0,
+    Sint:+r[16]||0, Cigarro:+r[17]||0, Outras:+r[23]||0,
     ArmaP:+r[18]||0, ArmaR:+r[19]||0,
     ArmaTipos:(r[20]?String(r[20]).split(';').filter(Boolean):[]),
     Lat:(r[21]!=null?+r[21]:null), Lon:(r[22]!=null?+r[22]:null),
@@ -718,6 +719,8 @@ function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   el.classList.add('active');
+  // a barra de KPIs resume o panorama geral; nas demais abas cada uma traz os seus
+  document.getElementById('mainKpiBar').style.display = (id==='geral') ? '' : 'none';
   if(dirty[id]){RENDER[id]();dirty[id]=false;}
 }
 
@@ -748,6 +751,7 @@ function renderKPIs(){
   document.getElementById('kArmasSub').textContent= ni(aR)+' restritas · '+ni(aP)+' permitidas';
   document.getElementById('kCont').textContent    = ni(d.filter(isC('contrabando')).length);
   document.getElementById('kRec').textContent     = ni(d.filter(isC('receptacao')).length);
+  document.getElementById('kOutras').textContent  = nb(sum(d,r=>r.Outras));
 
   document.getElementById('hdPeriod').textContent =
     'Relatório Estratégico · BOPM '+(anosDe(d).join('–')||'—')+' · '+ni(d.length)+' ocorrências criminais';
@@ -810,6 +814,7 @@ function rTrafico(){
   const d=filteredData;
   const t=d.filter(isC('trafico')), po=d.filter(isC('porte'));
   const mac=sum(d,r=>r.Maconha),coc=sum(d,r=>r.Cocaina),crk=sum(d,r=>r.Crack);
+  const out=sum(d,r=>r.Outras);
   const [tm,tv]=topKey(cnt(t,r=>r.Malha));
   const hp=maxIdx(byHour(t));
 
@@ -819,6 +824,7 @@ function rTrafico(){
     {label:'Maconha total apreendida',cls:'i-yellow',color:'yellow',val:nb(mac)+' kg',desc:'No recorte filtrado'},
     {label:'Cocaína total apreendida',cls:'i-purple',color:'purple',val:nb(coc)+' kg',desc:'No recorte filtrado'},
     {label:'Crack apreendido',cls:'i-orange',color:'orange',val:nb(crk)+' kg',desc:'No recorte filtrado'},
+    {label:'Outras drogas',cls:'i-green',color:'green',val:nb(out)+' kg',desc:'Coluna OutrasDrogas do BOPM'},
     {label:'Malha crítica — tráfico',cls:'i-red',color:'red',val:tm,desc:`${ni(tv)} ocorrências de tráfico`},
     {label:'Hora de pico — tráfico',cls:'i-blue',color:'blue',val:hp+'h',desc:'Maior concentração de tráfico'}
   ]);
